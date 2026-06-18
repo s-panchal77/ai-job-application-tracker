@@ -1,0 +1,34 @@
+# Web Framework
+fastapi==0.111.0
+
+# ASGI Server - runs our FastAPI app
+uvicorn[standard]==0.29.0
+
+# Database ORM - lets us use Python objects instead of raw SQL
+sqlalchemy==2.0.30
+
+# Database Driver - connects SQLAlchemy to PostgreSQL
+psycopg2-binary==2.9.9
+
+# Database Migrations - tracks and applies DB schema changes
+alembic==1.13.1
+
+# Data Validation - validates request/response data
+pydantic==2.7.1
+pydantic-settings==2.2.1
+
+# Authentication
+python-jose[cryptography]==3.3.0   # JWT token creation and verification
+passlib[bcrypt]==1.7.4             # Password hashing
+
+# File Upload Support
+python-multipart==0.0.9
+
+# HTTP Client - for calling AI APIs
+httpx==0.27.0
+
+# Environment Variables
+python-dotenv==1.0.1
+
+# AI Integration (we'll use one of these in a later phase)
+openai==1.30.1
