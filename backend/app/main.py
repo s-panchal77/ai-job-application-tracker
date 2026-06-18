@@ -11,6 +11,9 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 from app.db.database import get_db
 
+from app.schemas import UserCreate, UserResponse
+
+
 # ─────────────────────────────────────────────
 # LIFESPAN (STARTUP / SHUTDOWN) EVENTS
 # ─────────────────────────────────────────────
@@ -98,3 +101,20 @@ def test_database_connection(db: Session = Depends(get_db)):
             status_code=500,
             detail=f"Database connection failed: {str(e)}"
         )
+
+
+# ─────────────────────────────────────────────────────────────
+# SCHEMA TEST ROUTE
+# ─────────────────────────────────────────────────────────────
+
+@app.post("/test-schema")
+def test_schema(user: UserCreate):
+    """
+    Temporary route to test Pydantic validation.
+    Try sending invalid data and watch FastAPI reject it automatically.
+    """
+    return {
+        "received_email": user.email,
+        "received_full_name": user.full_name,
+        "message": "Validation passed!"
+    }

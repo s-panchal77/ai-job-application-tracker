@@ -32,3 +32,6 @@ python-dotenv==1.0.1
 
 # AI Integration (we'll use one of these in a later phase)
 openai==1.30.1
+
+# Email Validation
+email-validator==2.1.1
