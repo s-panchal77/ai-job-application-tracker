@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.db.database import engine, Base
-from app.routers import users    # NEW
+from app.routers import users, auth    # UPDATED
 
 import app.models  # noqa: F401
 
@@ -29,12 +29,7 @@ app.add_middleware(
 )
 
 
-# ─────────────────────────────────────────────────────────────
-# REGISTER ROUTERS
-# ─────────────────────────────────────────────────────────────
-# app.include_router() "plugs in" the routes defined in users.py
-# Every route in that file now becomes part of our main app,
-# automatically prefixed with /users and grouped under "Users" in /docs
+app.include_router(auth.router)    # NEW
 app.include_router(users.router)
 
 
@@ -51,7 +46,3 @@ def root():
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
-
-
-# Removed /test-db and /test-schema routes — no longer needed,
-# real routes now prove the system works end to end.

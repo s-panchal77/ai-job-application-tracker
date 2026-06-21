@@ -5,13 +5,16 @@ from fastapi import HTTPException, status
 
 from app.models.user import User
 from app.schemas.user import UserCreate
+from app.core.security import hash_password   # NEW IMPORT
 
 
-# ─────────────────────────────────────────────────────────────
-# CREATE
-# ─────────────────────────────────────────────────────────────
 def create_user(db: Session, user_data: UserCreate) -> User:
-    """Create a new user if the email does not already exist."""
+    """
+    Creates a new user in the database.
+
+    UPDATED in Phase 5: password is now properly hashed with bcrypt
+    before storage. This replaces the Phase 4 placeholder.
+    """
     existing_user = db.query(User).filter(User.email == user_data.email).first()
     if existing_user:
         raise HTTPException(
@@ -21,20 +24,25 @@ def create_user(db: Session, user_data: UserCreate) -> User:
 
     new_user = User(
         email=user_data.email,
-        hashed_password=user_data.password,
+        hashed_password=hash_password(user_data.password),  # ✅ now hashed
         full_name=user_data.full_name,
     )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
+
+    try:
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        return new_user
+    
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
 
 
-# ─────────────────────────────────────────────────────────────
-# READ — Get one user by ID
-# ─────────────────────────────────────────────────────────────
 def get_user_by_id(db: Session, user_id: int) -> User:
-    """Fetch a single user by ID or raise a 404 error."""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(
@@ -44,33 +52,20 @@ def get_user_by_id(db: Session, user_id: int) -> User:
     return user
 
 
-# ─────────────────────────────────────────────────────────────
-# READ — Get all users (with pagination)
-# ─────────────────────────────────────────────────────────────
 def get_all_users(db: Session, skip: int = 0, limit: int = 100) -> list[User]:
-    """Fetch a paginated list of users."""
     return db.query(User).offset(skip).limit(limit).all()
 
 
-# ─────────────────────────────────────────────────────────────
-# UPDATE
-# ─────────────────────────────────────────────────────────────
 def update_user(db: Session, user_id: int, full_name: str | None) -> User:
-    """Update an existing user's full name."""
     user = get_user_by_id(db, user_id)
     if full_name is not None:
         user.full_name = full_name
-
     db.commit()
     db.refresh(user)
     return user
 
 
-# ─────────────────────────────────────────────────────────────
-# DELETE
-# ─────────────────────────────────────────────────────────────
 def delete_user(db: Session, user_id: int) -> None:
-    """Delete a user permanently from the database."""
     user = get_user_by_id(db, user_id)
     db.delete(user)
     db.commit()

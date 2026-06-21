@@ -20,6 +20,7 @@ pydantic-settings==2.2.1
 # Authentication
 python-jose[cryptography]==3.3.0   # JWT token creation and verification
 passlib[bcrypt]==1.7.4             # Password hashing
+bcrypt==4.1.2                      # Explicit bcrypt version compatible with passlib 1.7.4
 
 # File Upload Support
 python-multipart==0.0.9
