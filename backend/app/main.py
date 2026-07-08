@@ -7,7 +7,7 @@ import app.models  # noqa: F401
 
 from app.core.config import settings
 from app.db.database import Base, engine
-from app.routers import auth, jobs, users
+from app.routers import auth, jobs, users, resumes
 
 
 # ==========================================================
@@ -51,7 +51,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(jobs.router)
-
+app.include_router(resumes.router)
 
 # ==========================================================
 # Routes

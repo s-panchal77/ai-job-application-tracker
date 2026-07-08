@@ -52,6 +52,12 @@ class User(Base):
         back_populates="user",
         cascade="all, delete-orphan",
     )
+    
+    resumes: Mapped[List["Resume"]] = relationship(
+        "Resume",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
 
     def __repr__(self) -> str:
         """String representation — helpful for debugging in terminal."""
