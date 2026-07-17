@@ -39,3 +39,6 @@ email-validator==2.1.1
 
 # File Upload Support
 python-multipart==0.0.9
+
+# PDF Processing
+pypdf==4.2.0
