@@ -6,29 +6,44 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     """
     All configuration loaded from .env file.
+    Pydantic validates every value at startup.
     """
 
+    # ==========================================================
+    # Application
+    # ==========================================================
     APP_NAME: str = "AI Job Application Tracker"
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = True
 
-    DATABASE_URL: str = "postgresql://postgres:password@localhost:5432/jobtracker"
+    # ==========================================================
+    # Database
+    # ==========================================================
+    DATABASE_URL: str = "postgresql://postgres:admin123@localhost:5432/jobtracker"
 
-    SECRET_KEY: str = "your-secret-key-change-this"
+    # ==========================================================
+    # JWT Authentication
+    # ==========================================================
+    SECRET_KEY: str = "jobtracker_backend_secret_key_2026"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
-    # ── AI Integration Settings (NEW) ────────────────────────
-    # "mock" = use fake local logic, no external API calls, free, instant
-    # "openai" = call the real OpenAI API — requires OPENAI_API_KEY
+
+    # ==========================================================
+    # ─── AI Integration Settings ──────────────────────────────
+    # AI_PROVIDER decides which AI logic runs. Only two valid values:
     #
-    # This single setting is what lets us swap providers without
-    # touching any route or service code.
+    #   "mock"   → free, instant, keyword-based fake analysis (default)
+    #   "gemini" → real analysis via Google Gemini REST API
+    # ==========================================================
+    # AI_PROVIDER: str = "mock"
     AI_PROVIDER: str = "mock"
 
-    OPENAI_API_KEY: str = ""                  # Only required if AI_PROVIDER=openai
-    OPENAI_MODEL: str = "gpt-4o-mini"          # Cheap, fast model — good default
-    OPENAI_API_URL: str = "https://api.openai.com/v1/chat/completions"
+    # ==========================================================
+    # Google Gemini
+    # ==========================================================
+    GEMINI_API_KEY: str = ""
+    GEMINI_MODEL: str = "gemini-2.5-pro"
 
     class Config:
         env_file = ".env"

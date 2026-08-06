@@ -1,4 +1,5 @@
 # backend/app/routers/ai.py
+# NO CHANGES FROM PHASE 9 — shown for reference only
 
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
@@ -10,37 +11,18 @@ from app.services import ai_service
 from app.services.auth_service import get_current_user
 
 
-router = APIRouter(
-    prefix="/ai",
-    tags=["AI"],
-)
+router = APIRouter(prefix="/ai", tags=["AI"])
 
 
-@router.post(
-    "/match",
-    response_model=AIMatchResponse,
-    status_code=status.HTTP_200_OK,
-)
+@router.post("/match", response_model=AIMatchResponse, status_code=status.HTTP_200_OK)
 async def match_resume(
     request: AIMatchRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),   # 🔒 Protected
+    current_user: User = Depends(get_current_user),
 ):
     """
-    Analyze how well a resume matches a job description.
-
-    🔒 Requires authentication.
-
-    Request body:
-    - job_id: which job application to match against (required)
-    - resume_id: which resume to use (optional — uses your active resume if omitted)
-
-    The actual AI provider used depends on the AI_PROVIDER setting
-    in your .env file:
-    - "mock"   → instant, free, keyword-based fake analysis (default)
-    - "openai" → real analysis via OpenAI API (requires OPENAI_API_KEY)
-
-    Both providers return the exact same response shape.
+    Analyze resume-to-job match. Provider (mock/openai) is decided
+    entirely inside ai_service — this router has zero knowledge of it.
     """
     return await ai_service.match_resume_to_job(
         db=db,
