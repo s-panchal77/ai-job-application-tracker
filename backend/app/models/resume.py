@@ -50,11 +50,9 @@ class Resume(Base):
     )
 
     # Relationship
-    user = relationship(
-        "User",
-        back_populates="resumes",
-    )
-
+    user = relationship("User", back_populates="resumes")
+    analysis = relationship("ResumeAnalysis", back_populates="resume", uselist=False)
+    
     def __repr__(self):
         return (
             f"<Resume(id={self.id}, "

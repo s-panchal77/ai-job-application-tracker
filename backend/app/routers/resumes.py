@@ -2,12 +2,16 @@
 
 import os
 
+from typing import Optional
+from app.schemas.resume_analysis import AnalysisStatusResponse
+
 from fastapi import (
     APIRouter,
     Depends,
     File,
     Form,
     UploadFile,
+    BackgroundTasks,
     status,
 )
 from fastapi.responses import FileResponse
@@ -36,6 +40,7 @@ router = APIRouter(
     status_code=status.HTTP_201_CREATED,
 )
 async def upload_resume(
+    background_tasks: BackgroundTasks,
     file: UploadFile = File(
         ...,
         description="PDF resume (max 5 MB)",
@@ -44,6 +49,10 @@ async def upload_resume(
         default=None,
         description="Optional resume version",
     ),
+    job_id: Optional[int] = Form(  # NEW
+        default=None,
+        description="Optional. If provided, AI match analysis runs in the background against this job.",
+    ),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -51,13 +60,40 @@ async def upload_resume(
     Upload a resume.
     """
 
-    return await resume_service.upload_resume(
+    resume = await resume_service.upload_resume(
         db=db,
         file=file,
         current_user=current_user,
         version_label=version_label,
+        job_id=job_id,
     )
 
+    # Schedule the background task — this line does NOT run the task now,
+    if job_id is not None:
+        background_tasks.add_task(
+            resume_service.analyze_resume_background,
+            resume.id,
+            job_id,
+            current_user.id,
+        )
+
+    return resume   # sent to client NOW — analysis hasn't started yet
+
+# ==========================================================
+# Get Resume Analysis
+# ==========================================================
+
+@router.get(
+    "/{resume_id}/analysis",
+    response_model=AnalysisStatusResponse,
+    status_code=status.HTTP_200_OK,
+)
+def get_resume_analysis(
+    resume_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),   # 🔒 Protected
+):
+    return resume_service.get_analysis_status(db, resume_id, current_user)
 
 # ==========================================================
 # List Resumes

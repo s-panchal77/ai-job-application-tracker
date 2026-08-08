@@ -8,6 +8,7 @@
 from app.models.user import User
 from app.models.job import JobApplication
 from app.models.resume import Resume
+from app.models.resume_analysis import ResumeAnalysis
 
 # When new models are created (resume, interview, etc.),
 # add their imports here too.
