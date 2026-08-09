@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.job import ApplicationStatus
 from app.models.user import User
-from app.schemas.job import JobCreate, JobResponse, JobUpdate
+from app.schemas.job import JobCreate, JobResponse, JobStatsResponse, JobUpdate
 from app.services import job_service
 from app.services.auth_service import get_current_user
 
@@ -84,6 +84,25 @@ def list_jobs(
         skip=skip,
         limit=limit,
     )
+
+
+# ==========================================================
+# Get Job Stats  (MUST be before /{job_id} to avoid route collision)
+# ==========================================================
+
+@router.get(
+    "/stats",
+    response_model=JobStatsResponse,
+    status_code=status.HTTP_200_OK,
+)
+def get_job_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Return per-status application counts for the current user.
+    """
+    return job_service.get_job_stats(db, current_user)
 
 
 # ==========================================================

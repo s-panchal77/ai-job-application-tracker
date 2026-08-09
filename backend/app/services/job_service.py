@@ -170,3 +170,42 @@ def delete_job(
 
     db.delete(job)
     db.commit()
+
+
+# ==========================================================
+# Job Stats
+# ==========================================================
+
+def get_job_stats(
+    db: Session,
+    current_user: User,
+) -> dict:
+    """
+    Return per-status counts for all job applications
+    belonging to the current user.
+    """
+    from sqlalchemy import func
+
+    rows = (
+        db.query(
+            JobApplication.status,
+            func.count(JobApplication.id).label("count"),
+        )
+        .filter(JobApplication.user_id == current_user.id)
+        .group_by(JobApplication.status)
+        .all()
+    )
+
+    # Build a mapping from status value → count
+    status_map = {row.status: row.count for row in rows}
+
+    total = sum(status_map.values())
+
+    return {
+        "total": total,
+        "applied": status_map.get(ApplicationStatus.APPLIED, 0),
+        "oa_scheduled": status_map.get(ApplicationStatus.OA_SCHEDULED, 0),
+        "interview": status_map.get(ApplicationStatus.INTERVIEW, 0),
+        "rejected": status_map.get(ApplicationStatus.REJECTED, 0),
+        "selected": status_map.get(ApplicationStatus.SELECTED, 0),
+    }

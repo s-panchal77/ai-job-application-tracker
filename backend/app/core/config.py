@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     # ==========================================================
     # Database
     # ==========================================================
-    DATABASE_URL: str = "postgresql://postgres:admin123@localhost:5432/jobtracker"
+    DATABASE_URL: str = "postgresql://postgres:password@localhost:5432/jobtracker"
 
     # ==========================================================
     # JWT Authentication
@@ -36,14 +36,13 @@ class Settings(BaseSettings):
     #   "mock"   → free, instant, keyword-based fake analysis (default)
     #   "gemini" → real analysis via Google Gemini REST API
     # ==========================================================
-    # AI_PROVIDER: str = "mock"
     AI_PROVIDER: str = "mock"
 
     # ==========================================================
     # Google Gemini
     # ==========================================================
     GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-2.5-pro"
+    GEMINI_MODEL: str = "gemini-3.6-flash"
 
     class Config:
         env_file = ".env"

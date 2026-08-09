@@ -87,3 +87,17 @@ class JobResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# ─────────────────────────────────────────────────────────────
+# JobStatsResponse — Aggregated counts returned by GET /jobs/stats
+# ─────────────────────────────────────────────────────────────
+class JobStatsResponse(BaseModel):
+    """Per-status application counts for the current user."""
+
+    total: int = 0
+    applied: int = 0
+    oa_scheduled: int = 0
+    interview: int = 0
+    rejected: int = 0
+    selected: int = 0
