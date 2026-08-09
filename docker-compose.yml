@@ -1,0 +1,83 @@
+# Docker Compose configuration
+
+services:
+
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: jobtracker_db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+
+    # Persist database data
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    # Access PostgreSQL from host machine
+    ports:
+      - "5432:5432"
+
+    # Verify database is ready before backend starts
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    container_name: jobtracker_backend
+    restart: unless-stopped
+
+    # Load backend environment variables
+    env_file:
+      - ./backend/.env
+
+    environment:
+      # Use Docker service name "db" instead of localhost
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+
+    # Start only after database is healthy
+    depends_on:
+      db:
+        condition: service_healthy
+
+    # Expose FastAPI API
+    ports:
+      - "8000:8000"
+
+    # Persist uploaded resumes
+    volumes:
+      - resume_uploads:/app/uploads
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+
+    container_name: jobtracker_frontend
+    restart: unless-stopped
+
+    depends_on:
+      - backend
+
+    # Access frontend in browser
+    ports:
+      - "5173:80"
+
+# Persistent Docker volumes
+volumes:
+  postgres_data:
+  resume_uploads:

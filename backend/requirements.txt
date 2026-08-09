@@ -1,44 +1,35 @@
-# Web Framework
-fastapi==0.111.0
+# FastAPI Framework
+fastapi==0.111.0          # API framework
+uvicorn[standard]==0.29.0 # ASGI server
 
-# ASGI Server - runs our FastAPI app
-uvicorn[standard]==0.29.0
+# Database
+sqlalchemy==2.0.30        # ORM
+psycopg2-binary==2.9.9    # PostgreSQL driver
+alembic==1.13.1           # Migrations
 
-# Database ORM - lets us use Python objects instead of raw SQL
-sqlalchemy==2.0.30
-
-# Database Driver - connects SQLAlchemy to PostgreSQL
-psycopg2-binary==2.9.9
-
-# Database Migrations - tracks and applies DB schema changes
-alembic==1.13.1
-
-# Data Validation - validates request/response data
-pydantic==2.7.1
-pydantic-settings==2.2.1
+# Validation & Config
+pydantic==2.7.1           # Data validation
+pydantic-settings==2.2.1  # Settings management
 
 # Authentication
-python-jose[cryptography]==3.3.0   # JWT token creation and verification
-passlib[bcrypt]==1.7.4             # Password hashing
-bcrypt==4.0.1                      # Password hashing
+python-jose[cryptography]==3.3.0 # JWT tokens
+passlib[bcrypt]==1.7.4           # Password hashing
+bcrypt==4.0.1                    # Hash algorithm
 
-# File Upload Support
-python-multipart==0.0.9
+# File Uploads
+python-multipart==0.0.9   # Multipart/form-data
 
-# HTTP Client - for calling AI APIs
-httpx==0.27.0
+# HTTP Requests
+httpx==0.27.0             # API requests
 
 # Environment Variables
-python-dotenv==1.0.1
+python-dotenv==1.0.1      # Load .env
 
-# AI Integration (we'll use one of these in a later phase)
-openai==1.30.1
+# AI Integration
+openai==1.30.1            # OpenAI SDK
 
-# Email Validation
-email-validator==2.1.1
-
-# File Upload Support
-python-multipart==0.0.9
+# Validation
+email-validator==2.1.1    # Email validation
 
 # PDF Processing
-pypdf==4.2.0
+pypdf==4.2.0              # PDF text extraction
