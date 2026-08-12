@@ -33,3 +33,6 @@ email-validator==2.1.1    # Email validation
 
 # PDF Processing
 pypdf==4.2.0              # PDF text extraction
+
+# Rate Limiting
+slowapi==0.1.9            # Rate limiting middleware (wraps 'limits' library)

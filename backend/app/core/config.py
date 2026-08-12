@@ -7,6 +7,10 @@ class Settings(BaseSettings):
     """
     All configuration loaded from .env file.
     Pydantic validates every value at startup.
+
+    ENVIRONMENT rules:
+      "development" → DEBUG logs, relaxed CORS, verbose errors
+      "production"  → INFO logs, strict CORS, sanitized errors
     """
 
     # ==========================================================
@@ -15,6 +19,13 @@ class Settings(BaseSettings):
     APP_NAME: str = "AI Job Application Tracker"
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = True
+
+    # ──────────────────────────────────────────────────────────
+    # ENVIRONMENT
+    # Controls log verbosity, error detail, and feature flags.
+    # Values: "development" | "production"
+    # ──────────────────────────────────────────────────────────
+    ENVIRONMENT: str = "development"
 
     # ==========================================================
     # Database
@@ -28,6 +39,55 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
+    # ==========================================================
+    # CORS (Cross-Origin Resource Sharing)
+    # ──────────────────────────────────────────────────────────
+    # Stored as a plain string so pydantic-settings does NOT try to
+    # JSON-decode it. The @property below parses it on access.
+    #
+    # In .env:   ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
+    # At runtime: settings.allowed_origins → ["http://localhost:3000", ...]
+    #
+    # WHY NOT list[str] directly?
+    # pydantic-settings 2.x intercepts list fields from .env and tries
+    # to JSON-parse them (expects ["...","..."]). A bare comma-separated
+    # string fails that JSON decode. Using str + @property bypasses this.
+    # ==========================================================
+    ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:5173"
+
+    @property
+    def allowed_origins(self) -> list[str]:
+        """
+        Parses ALLOWED_ORIGINS string into a Python list.
+
+        Example:
+            "http://localhost:3000,http://localhost:5173"
+            → ["http://localhost:3000", "http://localhost:5173"]
+
+        Use `settings.allowed_origins` (lowercase) everywhere in code.
+        """
+        return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",") if origin.strip()]
+
+    # ==========================================================
+    # Logging
+    # ──────────────────────────────────────────────────────────
+    # LOG_LEVEL controls how verbose the application logs are:
+    #   DEBUG    → every request detail (development)
+    #   INFO     → normal operation info (production)
+    #   WARNING  → only problems (high-traffic production)
+    # ==========================================================
+    LOG_LEVEL: str = "DEBUG"
+
+    # ==========================================================
+    # Rate Limiting
+    # ──────────────────────────────────────────────────────────
+    # RATE_LIMIT_PER_MINUTE: max requests per IP per 60 seconds.
+    # Prevents brute-force, DoS, and abuse.
+    #
+    # Example: 60 = 1 request per second average.
+    # Set higher in development so you can test freely.
+    # ==========================================================
+    RATE_LIMIT_PER_MINUTE: int = 60
 
     # ==========================================================
     # ─── AI Integration Settings ──────────────────────────────
