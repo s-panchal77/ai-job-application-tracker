@@ -39,6 +39,7 @@ EXCEPTION HANDLER REGISTRATION
   (Exception catches everything — if it's first, the others never fire)
 """
 
+from fastapi import HTTPException
 import os
 
 from fastapi import FastAPI
@@ -127,7 +128,13 @@ app.state.limiter = limiter
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
 # 4xx/5xx — Our HTTPException helpers (not_found, forbidden, etc.)
-from fastapi import HTTPException  # noqa: E402
+# from fastapi import HTTPException  # noqa: E402
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+app.add_exception_handler(
+    StarletteHTTPException,
+    http_exception_handler
+)
 app.add_exception_handler(HTTPException, http_exception_handler)
 
 # 429 — Rate limit exceeded (from slowapi)
