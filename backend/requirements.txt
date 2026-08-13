@@ -35,4 +35,9 @@ email-validator==2.1.1    # Email validation
 pypdf==4.2.0              # PDF text extraction
 
 # Rate Limiting
-slowapi==0.1.9            # Rate limiting middleware (wraps 'limits' library)
+slowapi==0.1.9            # Rate limiting middleware (wraps 'limits' library)
+
+# Testing
+pytest==8.2.2             # Main Python testing framework
+pytest-cov==5.0.0         # Test coverage reporting and analysis
+pytest-asyncio==0.23.7    # Async test support for FastAPI and asyncio
