@@ -2,10 +2,10 @@
 
 from sqlalchemy.orm import Session
 
+from app.core.exceptions import bad_request_exception, not_found_exception
+from app.core.security import hash_password
 from app.models.user import User
 from app.schemas.user import UserCreate
-from app.core.security import hash_password
-from app.core.exceptions import not_found_exception, bad_request_exception
 
 
 # ─────────────────────────────────────────────────────────────
@@ -72,7 +72,7 @@ def update_user(db: Session, user_id: int, full_name: str | None) -> User:
     Updates a user's full name.
     Raises 404 if user not found (via get_user_by_id).
     """
-    user = get_user_by_id(db, user_id)   # 404 handled inside here
+    user = get_user_by_id(db, user_id)  # 404 handled inside here
 
     if full_name is not None:
         user.full_name = full_name
@@ -91,7 +91,7 @@ def delete_user(db: Session, user_id: int) -> None:
     Deletes a user permanently.
     Raises 404 if user not found (via get_user_by_id).
     """
-    user = get_user_by_id(db, user_id)   # 404 handled inside here
+    user = get_user_by_id(db, user_id)  # 404 handled inside here
 
     db.delete(user)
     db.commit()

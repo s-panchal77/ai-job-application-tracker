@@ -10,6 +10,7 @@
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![Google Gemini](https://img.shields.io/badge/Google-Gemini_AI-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![CI](https://github.com/s-panchal77/ai-job-application-tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/s-panchal77/ai-job-application-tracker/actions/workflows/ci.yml)
 
 [Features](#-features) • [Tech Stack](#-tech-stack) • [Architecture](#-system-architecture) • [Quickstart](#-quickstart) • [Docker Setup](#-docker-setup) • [API Reference](#-api-reference) • [Environment Variables](#-environment-variables)
 
@@ -137,7 +138,7 @@ The standout feature is **AI-powered resume analysis**: upload your resume along
 
 ---
 
-## System Architecture
+## 🏗 System Architecture
 
 ```text
         React Frontend
@@ -151,8 +152,6 @@ The standout feature is **AI-powered resume analysis**: upload your resume along
 ```
 
 ---
-
-## 🏗 System Architecture
 
 ```text
 ┌────────────────────────────────────────────────────────────┐

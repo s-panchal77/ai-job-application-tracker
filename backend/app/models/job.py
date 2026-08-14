@@ -1,7 +1,8 @@
-from datetime import datetime
 import enum
+from datetime import datetime
 from typing import Optional
-from sqlalchemy import String, Text, ForeignKey, Enum, func
+
+from sqlalchemy import Enum, ForeignKey, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.database import Base
@@ -12,6 +13,7 @@ class ApplicationStatus(str, enum.Enum):
     """
     Valid statuses for a job application.
     """
+
     APPLIED = "Applied"
     OA_SCHEDULED = "OA Scheduled"
     INTERVIEW = "Interview"

@@ -52,16 +52,17 @@ HOW MOCKING WORKS:
   a Mock object. After the test, the real function is restored.
 """
 
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import patch, AsyncMock, MagicMock
 
+from app.models.job import ApplicationStatus, JobApplication
 from app.models.resume import Resume
-from app.models.job import JobApplication, ApplicationStatus
-
 
 # =============================================================
 # HELPERS — Create test data directly in DB
 # =============================================================
+
 
 def create_resume_in_db(db_session, user_id, filename="test_resume.pdf"):
     """
@@ -109,6 +110,7 @@ def create_job_with_description(db_session, user_id):
 # =============================================================
 # SECTION 1: AI MATCH TESTS
 # =============================================================
+
 
 class TestAIMatch:
     """
@@ -185,8 +187,7 @@ class TestAIMatch:
         assert isinstance(data["match_score"], int)
         assert 0 <= data["match_score"] <= 100  # Score must be 0-100
 
-    def test_ai_match_invalid_job_id(self, client, db_session,
-                                      test_user, auth_headers):
+    def test_ai_match_invalid_job_id(self, client, db_session, test_user, auth_headers):
         """
         WHAT: Request AI match with a job_id that doesn't exist.
         EXPECT: 404 — service raises not_found_exception.
@@ -204,8 +205,9 @@ class TestAIMatch:
 
         assert response.status_code == 404
 
-    def test_ai_match_invalid_resume_id(self, client, db_session,
-                                         test_user, auth_headers):
+    def test_ai_match_invalid_resume_id(
+        self, client, db_session, test_user, auth_headers
+    ):
         """
         WHAT: Request AI match with a resume_id that doesn't exist.
         EXPECT: 404 — service raises not_found_exception.

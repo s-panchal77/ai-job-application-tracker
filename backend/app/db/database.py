@@ -23,6 +23,7 @@ class Base(DeclarativeBase):
     Parent class for all database models.
     Replaces the deprecated declarative_base().
     """
+
     pass
 
 

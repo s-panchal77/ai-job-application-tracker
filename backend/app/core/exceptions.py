@@ -78,7 +78,9 @@ def credentials_exception() -> HTTPException:
     )
 
 
-def unauthorized_exception(detail: str = "Incorrect email or password") -> HTTPException:
+def unauthorized_exception(
+    detail: str = "Incorrect email or password",
+) -> HTTPException:
     """
     Use this when login credentials are wrong.
     Separate from credentials_exception() — this is for failed login,
@@ -160,6 +162,7 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
     """
     # Import here to avoid circular import (logging imports config, exceptions imports logging)
     from app.core.logging import get_logger
+
     logger = get_logger("app.exceptions")
 
     # Choose log level: 4xx are warnings, 5xx are errors
@@ -218,6 +221,7 @@ async def validation_exception_handler(
         }
     """
     from app.core.logging import get_logger
+
     logger = get_logger("app.exceptions")
 
     # Build a simplified list of field errors
@@ -227,10 +231,14 @@ async def validation_exception_handler(
         # error["loc"] is a tuple: ("body", "company_name") or ("query", "limit")
         # We join it as "body → company_name" for readability
         field_path = " → ".join(str(loc) for loc in error["loc"])
-        errors.append({
-            "field": field_path,
-            "message": error["msg"],  # "Field required", "value is not a valid integer"
-        })
+        errors.append(
+            {
+                "field": field_path,
+                "message": error[
+                    "msg"
+                ],  # "Field required", "value is not a valid integer"
+            }
+        )
 
     logger.warning(
         "Validation error | %s %s | %d field(s) failed",
@@ -273,6 +281,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
       In production (DEBUG=False), clients see only the generic message.
     """
     from app.core.logging import get_logger
+
     logger = get_logger("app.exceptions")
 
     # Log full traceback on the server — this is what you search in logs
@@ -295,4 +304,4 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={"detail": detail},
-    )
+    )

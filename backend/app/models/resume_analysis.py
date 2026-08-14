@@ -1,9 +1,10 @@
 # backend/app/models/resume_analysis.py
 
 import enum
-from typing import Optional, List, Any
+from typing import Any, List, Optional
 
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum, JSON
+from sqlalchemy import (JSON, Column, DateTime, Enum, ForeignKey, Integer,
+                        String, Text)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -14,6 +15,7 @@ class AnalysisStatus(str, enum.Enum):
     """
     Possible states for a background resume analysis job.
     """
+
     PENDING = "pending"
     COMPLETED = "completed"
     FAILED = "failed"
@@ -31,6 +33,7 @@ class ResumeAnalysis(Base):
     Because each new upload creates a new Resume row (versioning), this model
     automatically keeps a full history of all analyses – no separate history table needed.
     """
+
     __tablename__ = "resume_analyses"
 
     # ─── Primary key ────────────────────────────────────────────────────
@@ -41,7 +44,7 @@ class ResumeAnalysis(Base):
         Integer,
         ForeignKey("resumes.id", ondelete="CASCADE"),
         nullable=False,
-        unique=True,        # enforces one-to-one
+        unique=True,  # enforces one-to-one
         index=True,
     )
     job_id = Column(
@@ -59,16 +62,20 @@ class ResumeAnalysis(Base):
 
     # Only filled when status == COMPLETED
     match_score = Column(Integer, nullable=True)
-    matched_skills = Column(JSON, nullable=True)   # list of strings
-    missing_skills = Column(JSON, nullable=True)   # list of strings
-    suggestions = Column(JSON, nullable=True)      # list of strings
+    matched_skills = Column(JSON, nullable=True)  # list of strings
+    missing_skills = Column(JSON, nullable=True)  # list of strings
+    suggestions = Column(JSON, nullable=True)  # list of strings
 
     # Only filled when status == FAILED
     error_message = Column(Text, nullable=True)
 
     # ─── Timestamps ────────────────────────────────────────────────────
-    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    analyzed_at = Column(DateTime(timezone=True), nullable=True)   # set when analysis finishes
+    created_at = Column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    analyzed_at = Column(
+        DateTime(timezone=True), nullable=True
+    )  # set when analysis finishes
 
     # ─── Relationships ─────────────────────────────────────────────────
     resume = relationship("Resume", back_populates="analysis")

@@ -1,28 +1,19 @@
 # backend/app/routers/resumes.py
 
 import os
-
 from typing import Optional
-from app.schemas.resume_analysis import AnalysisStatusResponse
 
-from fastapi import (
-    APIRouter,
-    Depends,
-    File,
-    Form,
-    UploadFile,
-    BackgroundTasks,
-    status,
-)
+from fastapi import (APIRouter, BackgroundTasks, Depends, File, Form,
+                     UploadFile, status)
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.models.user import User
 from app.schemas.resume import ResumeListResponse, ResumeResponse
+from app.schemas.resume_analysis import AnalysisStatusResponse
 from app.services import resume_service
 from app.services.auth_service import get_current_user
-
 
 router = APIRouter(
     prefix="/resumes",
@@ -33,6 +24,7 @@ router = APIRouter(
 # ==========================================================
 # Upload Resume
 # ==========================================================
+
 
 @router.post(
     "/upload",
@@ -77,11 +69,13 @@ async def upload_resume(
             current_user.id,
         )
 
-    return resume   # sent to client NOW — analysis hasn't started yet
+    return resume  # sent to client NOW — analysis hasn't started yet
+
 
 # ==========================================================
 # Get Resume Analysis
 # ==========================================================
+
 
 @router.get(
     "/{resume_id}/analysis",
@@ -91,13 +85,15 @@ async def upload_resume(
 def get_resume_analysis(
     resume_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),   # 🔒 Protected
+    current_user: User = Depends(get_current_user),  # 🔒 Protected
 ):
     return resume_service.get_analysis_status(db, resume_id, current_user)
+
 
 # ==========================================================
 # List Resumes
 # ==========================================================
+
 
 @router.get(
     "/",
@@ -121,6 +117,7 @@ def list_resumes(
 # ==========================================================
 # Get Resume
 # ==========================================================
+
 
 @router.get(
     "/{resume_id}",
@@ -146,6 +143,7 @@ def get_resume(
 # ==========================================================
 # Download Resume
 # ==========================================================
+
 
 @router.get(
     "/{resume_id}/download",
@@ -186,6 +184,7 @@ def download_resume(
 # Set Active Resume
 # ==========================================================
 
+
 @router.patch(
     "/{resume_id}/set-active",
     response_model=ResumeResponse,
@@ -210,6 +209,7 @@ def set_active_resume(
 # ==========================================================
 # Delete Resume
 # ==========================================================
+
 
 @router.delete(
     "/{resume_id}",

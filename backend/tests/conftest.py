@@ -28,21 +28,20 @@ We use scope="session" for the engine (expensive to create) and
 scope="function" for the database session (must be clean per test).
 """
 
-import os
 import io
-import pytest
+import os
 
+import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from fastapi.testclient import TestClient
 
+from app.core.security import create_access_token, hash_password
+from app.db.database import Base, get_db
 # Import our own app modules
 from app.main import app
-from app.db.database import Base, get_db
-from app.core.security import hash_password, create_access_token
+from app.models.job import ApplicationStatus, JobApplication
 from app.models.user import User
-from app.models.job import JobApplication, ApplicationStatus
-
 
 # =============================================================
 # STEP 1: TESTING DATABASE URL
@@ -68,15 +67,13 @@ from app.models.job import JobApplication, ApplicationStatus
 # different thread than it was created in.
 # =============================================================
 
-TEST_DATABASE_URL = os.getenv(
-    "TEST_DATABASE_URL",
-    "sqlite:///./test.db"
-)
+TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", "sqlite:///./test.db")
 
 
 # =============================================================
 # STEP 2: CREATE TEST ENGINE (session-scoped - created ONCE)
 # =============================================================
+
 
 @pytest.fixture(scope="session")
 def test_engine():
@@ -103,6 +100,7 @@ def test_engine():
 # =============================================================
 # STEP 3: TEST SESSION FACTORY (function-scoped - fresh per test)
 # =============================================================
+
 
 @pytest.fixture(scope="function")
 def db_session(test_engine):
@@ -160,6 +158,7 @@ def db_session(test_engine):
 # but they talk to a safe, isolated test database.
 # =============================================================
 
+
 @pytest.fixture(scope="function")
 def client(db_session):
     """
@@ -176,6 +175,7 @@ def client(db_session):
       v Fully isolated (no port conflicts)
       v Easy to debug (full stack traces)
     """
+
     def override_get_db():
         """
         This function REPLACES get_db for every test.
@@ -201,6 +201,7 @@ def client(db_session):
 # =============================================================
 # STEP 5: USER FIXTURES
 # =============================================================
+
 
 @pytest.fixture(scope="function")
 def test_user(db_session):
@@ -257,6 +258,7 @@ def second_user(db_session):
 # STEP 6: AUTH TOKEN FIXTURES
 # =============================================================
 
+
 @pytest.fixture(scope="function")
 def auth_token(test_user):
     """
@@ -296,6 +298,7 @@ def second_user_auth_headers(second_user):
 # =============================================================
 # STEP 7: SAMPLE DATA FIXTURES
 # =============================================================
+
 
 @pytest.fixture(scope="function")
 def sample_job(db_session, test_user):

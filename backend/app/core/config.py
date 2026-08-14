@@ -66,7 +66,11 @@ class Settings(BaseSettings):
 
         Use `settings.allowed_origins` (lowercase) everywhere in code.
         """
-        return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",") if origin.strip()]
+        return [
+            origin.strip()
+            for origin in self.ALLOWED_ORIGINS.split(",")
+            if origin.strip()
+        ]
 
     # ==========================================================
     # Logging

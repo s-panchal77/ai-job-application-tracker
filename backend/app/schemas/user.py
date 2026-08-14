@@ -2,6 +2,7 @@
 
 from datetime import datetime
 from typing import Optional
+
 from pydantic import BaseModel, EmailStr, Field
 
 
@@ -10,21 +11,18 @@ from pydantic import BaseModel, EmailStr, Field
 # ─────────────────────────────────────────────────────────────
 class UserCreate(BaseModel):
     """Schema for user registration request body."""
-    
+
     email: EmailStr = Field(
-        description="User's email address", 
-        examples=["john@example.com"]
+        description="User's email address", examples=["john@example.com"]
     )
     password: str = Field(
-        min_length=8, 
-        max_length=72, 
+        min_length=8,
+        max_length=72,
         description="Plain text password — hashed before storage",
-        examples=["SecurePass123"]
+        examples=["SecurePass123"],
     )
     full_name: Optional[str] = Field(
-        default=None, 
-        max_length=255, 
-        description="User's full name"
+        default=None, max_length=255, description="User's full name"
     )
 
 
@@ -33,7 +31,7 @@ class UserCreate(BaseModel):
 # ─────────────────────────────────────────────────────────────
 class UserLogin(BaseModel):
     """Schema for user login request body."""
-    
+
     email: EmailStr
     password: str
 
@@ -43,7 +41,7 @@ class UserLogin(BaseModel):
 # ─────────────────────────────────────────────────────────────
 class UserResponse(BaseModel):
     """Schema for user data sent back to the client."""
-    
+
     id: int
     email: EmailStr
     full_name: Optional[str] = None

@@ -40,6 +40,7 @@ WHERE DOES VALIDATION HAPPEN?
 # SECTION 1: REGISTRATION VALIDATION
 # =============================================================
 
+
 class TestRegistrationValidation:
     """Validation tests for POST /auth/register"""
 
@@ -56,13 +57,18 @@ class TestRegistrationValidation:
         ]
 
         for email in valid_emails:
-            response = client.post("/auth/register", json={
-                "email": email,
-                "password": "ValidPass123!",
-            })
+            response = client.post(
+                "/auth/register",
+                json={
+                    "email": email,
+                    "password": "ValidPass123!",
+                },
+            )
             # Either 201 (created) or 400 (duplicate) — never 422
-            assert response.status_code in [201, 400], \
-                f"Expected 201 or 400 for email '{email}', got {response.status_code}"
+            assert response.status_code in [
+                201,
+                400,
+            ], f"Expected 201 or 400 for email '{email}', got {response.status_code}"
 
     def test_email_invalid_formats(self, client):
         """
@@ -70,20 +76,24 @@ class TestRegistrationValidation:
         EXPECT: 422 for all.
         """
         invalid_emails = [
-            "notanemail",          # No @ symbol
-            "@nodomain.com",       # No local part
-            "no@",                 # No domain
-            "spaces in@email.com", # Spaces not allowed
-            "",                    # Empty string
+            "notanemail",  # No @ symbol
+            "@nodomain.com",  # No local part
+            "no@",  # No domain
+            "spaces in@email.com",  # Spaces not allowed
+            "",  # Empty string
         ]
 
         for email in invalid_emails:
-            response = client.post("/auth/register", json={
-                "email": email,
-                "password": "ValidPass123!",
-            })
-            assert response.status_code == 422, \
-                f"Expected 422 for invalid email '{email}', got {response.status_code}"
+            response = client.post(
+                "/auth/register",
+                json={
+                    "email": email,
+                    "password": "ValidPass123!",
+                },
+            )
+            assert (
+                response.status_code == 422
+            ), f"Expected 422 for invalid email '{email}', got {response.status_code}"
 
     def test_password_length_boundaries(self, client):
         """
@@ -95,31 +105,43 @@ class TestRegistrationValidation:
           - 73 chars = 422 (above max of 72)
         """
         # 7 chars — below minimum (8)
-        response = client.post("/auth/register", json={
-            "email": "len7@example.com",
-            "password": "1234567",  # 7 chars
-        })
+        response = client.post(
+            "/auth/register",
+            json={
+                "email": "len7@example.com",
+                "password": "1234567",  # 7 chars
+            },
+        )
         assert response.status_code == 422
 
         # 8 chars — at minimum
-        response = client.post("/auth/register", json={
-            "email": "len8@example.com",
-            "password": "12345678",  # 8 chars
-        })
+        response = client.post(
+            "/auth/register",
+            json={
+                "email": "len8@example.com",
+                "password": "12345678",  # 8 chars
+            },
+        )
         assert response.status_code == 201
 
         # 72 chars — at maximum
-        response = client.post("/auth/register", json={
-            "email": "len72@example.com",
-            "password": "A" * 72,  # Exactly 72
-        })
+        response = client.post(
+            "/auth/register",
+            json={
+                "email": "len72@example.com",
+                "password": "A" * 72,  # Exactly 72
+            },
+        )
         assert response.status_code == 201
 
         # 73 chars — above maximum
-        response = client.post("/auth/register", json={
-            "email": "len73@example.com",
-            "password": "A" * 73,  # One too many
-        })
+        response = client.post(
+            "/auth/register",
+            json={
+                "email": "len73@example.com",
+                "password": "A" * 73,  # One too many
+            },
+        )
         assert response.status_code == 422
 
     def test_full_name_max_length(self, client):
@@ -127,11 +149,14 @@ class TestRegistrationValidation:
         WHAT: full_name must be <= 255 characters.
         EXPECT: 422 if longer.
         """
-        response = client.post("/auth/register", json={
-            "email": "longname@example.com",
-            "password": "ValidPass123!",
-            "full_name": "N" * 300,  # 300 > 255
-        })
+        response = client.post(
+            "/auth/register",
+            json={
+                "email": "longname@example.com",
+                "password": "ValidPass123!",
+                "full_name": "N" * 300,  # 300 > 255
+            },
+        )
         assert response.status_code == 422
 
     def test_wrong_data_types(self, client):
@@ -142,16 +167,20 @@ class TestRegistrationValidation:
         NOTE: Pydantic v2 CAN coerce simple types (int -> str in some cases).
         The important thing is it doesn't crash with a 500.
         """
-        response = client.post("/auth/register", json={
-            "email": 12345,  # Integer, not string
-            "password": "ValidPass123!",
-        })
+        response = client.post(
+            "/auth/register",
+            json={
+                "email": 12345,  # Integer, not string
+                "password": "ValidPass123!",
+            },
+        )
         assert response.status_code == 422  # Should reject non-email integer
 
 
 # =============================================================
 # SECTION 2: JOB CREATION VALIDATION
 # =============================================================
+
 
 class TestJobValidation:
     """Validation tests for POST /jobs/"""
@@ -161,10 +190,14 @@ class TestJobValidation:
         WHAT: company_name must have at least 1 character.
         EXPECT: 422 for empty string.
         """
-        response = client.post("/jobs/", json={
-            "company_name": "",   # min_length=1, fails
-            "job_title": "Dev",
-        }, headers=auth_headers)
+        response = client.post(
+            "/jobs/",
+            json={
+                "company_name": "",  # min_length=1, fails
+                "job_title": "Dev",
+            },
+            headers=auth_headers,
+        )
 
         assert response.status_code == 422
 
@@ -173,19 +206,27 @@ class TestJobValidation:
         WHAT: company_name must be <= 255 characters.
         EXPECT: 422 for 256+ chars.
         """
-        response = client.post("/jobs/", json={
-            "company_name": "C" * 256,  # 256 > 255
-            "job_title": "Dev",
-        }, headers=auth_headers)
+        response = client.post(
+            "/jobs/",
+            json={
+                "company_name": "C" * 256,  # 256 > 255
+                "job_title": "Dev",
+            },
+            headers=auth_headers,
+        )
 
         assert response.status_code == 422
 
     def test_job_title_min_length(self, client, auth_headers):
         """EXPECT: 422 for empty job title."""
-        response = client.post("/jobs/", json={
-            "company_name": "Corp",
-            "job_title": "",   # min_length=1, fails
-        }, headers=auth_headers)
+        response = client.post(
+            "/jobs/",
+            json={
+                "company_name": "Corp",
+                "job_title": "",  # min_length=1, fails
+            },
+            headers=auth_headers,
+        )
 
         assert response.status_code == 422
 
@@ -194,11 +235,15 @@ class TestJobValidation:
         WHAT: job_url must be <= 500 characters.
         EXPECT: 422 for 501+ chars.
         """
-        response = client.post("/jobs/", json={
-            "company_name": "Corp",
-            "job_title": "Dev",
-            "job_url": "https://example.com/" + "x" * 490,  # > 500
-        }, headers=auth_headers)
+        response = client.post(
+            "/jobs/",
+            json={
+                "company_name": "Corp",
+                "job_title": "Dev",
+                "job_url": "https://example.com/" + "x" * 490,  # > 500
+            },
+            headers=auth_headers,
+        )
 
         assert response.status_code == 422
 
@@ -209,11 +254,15 @@ class TestJobValidation:
 
         Valid values: Applied, OA Scheduled, Interview, Rejected, Selected
         """
-        response = client.post("/jobs/", json={
-            "company_name": "Corp",
-            "job_title": "Dev",
-            "status": "HACKED",  # Not a valid enum value
-        }, headers=auth_headers)
+        response = client.post(
+            "/jobs/",
+            json={
+                "company_name": "Corp",
+                "job_title": "Dev",
+                "status": "HACKED",  # Not a valid enum value
+            },
+            headers=auth_headers,
+        )
 
         assert response.status_code == 422
 
@@ -222,10 +271,14 @@ class TestJobValidation:
         WHAT: Send a list where a string is expected.
         EXPECT: 422 — Pydantic cannot coerce list to str.
         """
-        response = client.post("/jobs/", json={
-            "company_name": ["Google", "Amazon"],  # List, not string!
-            "job_title": "Dev",
-        }, headers=auth_headers)
+        response = client.post(
+            "/jobs/",
+            json={
+                "company_name": ["Google", "Amazon"],  # List, not string!
+                "job_title": "Dev",
+            },
+            headers=auth_headers,
+        )
 
         assert response.status_code == 422
 
@@ -242,12 +295,17 @@ class TestJobValidation:
         # Handle both default Pydantic format (list) and custom format
         body = response.json()
         body_str = str(body).lower()
-        assert "company_name" in body_str or "job_title" in body_str or "required" in body_str
+        assert (
+            "company_name" in body_str
+            or "job_title" in body_str
+            or "required" in body_str
+        )
 
 
 # =============================================================
 # SECTION 3: QUERY PARAMETER VALIDATION
 # =============================================================
+
 
 class TestQueryParamValidation:
     """Validation for GET /jobs/ query parameters: skip, limit, search"""
@@ -305,6 +363,7 @@ class TestQueryParamValidation:
 # SECTION 4: AI REQUEST VALIDATION
 # =============================================================
 
+
 class TestAIRequestValidation:
     """Validation tests for POST /ai/match"""
 
@@ -313,10 +372,14 @@ class TestAIRequestValidation:
         WHAT: Send job_id as a string.
         EXPECT: 422 — must be int.
         """
-        response = client.post("/ai/match", json={
-            "job_id": "not-an-int",  # String, not int!
-            "resume_id": 1,
-        }, headers=auth_headers)
+        response = client.post(
+            "/ai/match",
+            json={
+                "job_id": "not-an-int",  # String, not int!
+                "resume_id": 1,
+            },
+            headers=auth_headers,
+        )
 
         assert response.status_code == 422
 
@@ -325,9 +388,13 @@ class TestAIRequestValidation:
         WHAT: Missing required job_id.
         EXPECT: 422.
         """
-        response = client.post("/ai/match", json={
-            "resume_id": 1,
-        }, headers=auth_headers)
+        response = client.post(
+            "/ai/match",
+            json={
+                "resume_id": 1,
+            },
+            headers=auth_headers,
+        )
 
         assert response.status_code == 422
 
@@ -340,8 +407,12 @@ class TestAIRequestValidation:
         The result might be 404 (no active resume found) or 200 (if one exists),
         but it should NEVER be 422 (validation error).
         """
-        response = client.post("/ai/match", json={
-            "job_id": 1,  # May not exist, but that's OK — testing schema validation
-        }, headers=auth_headers)
+        response = client.post(
+            "/ai/match",
+            json={
+                "job_id": 1,  # May not exist, but that's OK — testing schema validation
+            },
+            headers=auth_headers,
+        )
 
         assert response.status_code != 422  # NOT a validation error

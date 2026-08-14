@@ -6,7 +6,6 @@ from datetime import datetime
 
 from fastapi import HTTPException, UploadFile, status
 
-
 # ==========================================================
 # Constants
 # ==========================================================
@@ -22,13 +21,14 @@ UPLOAD_DIR = os.path.join(
 ALLOWED_EXTENSIONS = {".pdf"}
 ALLOWED_CONTENT_TYPES = {"application/pdf"}
 
-MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024      # 5 MB
+MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
 PDF_MAGIC_BYTES = b"%PDF"
 
 
 # ==========================================================
 # Validate PDF
 # ==========================================================
+
 
 async def validate_pdf_file(file: UploadFile) -> bytes:
     """
@@ -89,6 +89,7 @@ async def validate_pdf_file(file: UploadFile) -> bytes:
 # Generate Filename
 # ==========================================================
 
+
 def generate_unique_filename(
     user_id: int,
     original_filename: str,
@@ -106,6 +107,7 @@ def generate_unique_filename(
 # ==========================================================
 # Save File
 # ==========================================================
+
 
 def save_file_to_disk(
     contents: bytes,
@@ -132,6 +134,7 @@ def save_file_to_disk(
 # ==========================================================
 # Delete File
 # ==========================================================
+
 
 def delete_file_from_disk(file_path: str) -> None:
     """

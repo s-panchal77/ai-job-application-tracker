@@ -10,7 +10,6 @@ from app.schemas.ai import AIMatchRequest, AIMatchResponse
 from app.services import ai_service
 from app.services.auth_service import get_current_user
 
-
 router = APIRouter(prefix="/ai", tags=["AI"])
 
 

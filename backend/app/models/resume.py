@@ -1,13 +1,6 @@
 # backend/app/models/resume.py
 
-from sqlalchemy import (
-    Boolean,
-    Column,
-    DateTime,
-    ForeignKey,
-    Integer,
-    String,
-)
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -52,7 +45,7 @@ class Resume(Base):
     # Relationship
     user = relationship("User", back_populates="resumes")
     analysis = relationship("ResumeAnalysis", back_populates="resume", uselist=False)
-    
+
     def __repr__(self):
         return (
             f"<Resume(id={self.id}, "

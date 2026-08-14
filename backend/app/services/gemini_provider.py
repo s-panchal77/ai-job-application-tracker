@@ -17,11 +17,11 @@
 # ─────────────────────────────────────────────────────────────
 
 import json
+
 import httpx
 from fastapi import HTTPException, status
 
 from app.core.config import settings
-
 
 # ─────────────────────────────────────────────────────────────
 # GEMINI REST ENDPOINT
@@ -114,46 +114,84 @@ async def analyze_resume_with_gemini(resume_text: str, job_description: str) -> 
         except httpx.HTTPStatusError as e:
             code = e.response.status_code
             if code == 400:
-                raise HTTPException(status.HTTP_400_BAD_REQUEST, "Gemini API rejected the request as malformed.")
+                raise HTTPException(
+                    status.HTTP_400_BAD_REQUEST,
+                    "Gemini API rejected the request as malformed.",
+                )
             elif code == 401:
-                raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Gemini API key is invalid or missing.")
+                raise HTTPException(
+                    status.HTTP_401_UNAUTHORIZED,
+                    "Gemini API key is invalid or missing.",
+                )
             elif code == 403:
-                raise HTTPException(status.HTTP_403_FORBIDDEN, "Gemini API key does not have permission for this request.")
+                raise HTTPException(
+                    status.HTTP_403_FORBIDDEN,
+                    "Gemini API key does not have permission for this request.",
+                )
             elif code == 404:
-                raise HTTPException(status.HTTP_404_NOT_FOUND, f"Gemini model '{settings.GEMINI_MODEL}' was not found. Check GEMINI_MODEL in .env")
+                raise HTTPException(
+                    status.HTTP_404_NOT_FOUND,
+                    f"Gemini model '{settings.GEMINI_MODEL}' was not found. Check GEMINI_MODEL in .env",
+                )
             elif code == 408:
-                raise HTTPException(status.HTTP_408_REQUEST_TIMEOUT, "Gemini API request timed out.")
+                raise HTTPException(
+                    status.HTTP_408_REQUEST_TIMEOUT, "Gemini API request timed out."
+                )
             elif code == 429:
-                raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS, "Gemini API rate limit reached. Please wait and try again shortly.")
+                raise HTTPException(
+                    status.HTTP_429_TOO_MANY_REQUESTS,
+                    "Gemini API rate limit reached. Please wait and try again shortly.",
+                )
             elif code >= 500:
-                raise HTTPException(status.HTTP_502_BAD_GATEWAY, "Gemini API is currently experiencing issues. Please try again later.")
+                raise HTTPException(
+                    status.HTTP_502_BAD_GATEWAY,
+                    "Gemini API is currently experiencing issues. Please try again later.",
+                )
             else:
-                raise HTTPException(status.HTTP_502_BAD_GATEWAY, f"Gemini API returned an unexpected error (status {code}).")
+                raise HTTPException(
+                    status.HTTP_502_BAD_GATEWAY,
+                    f"Gemini API returned an unexpected error (status {code}).",
+                )
 
     # ── Handle a completely empty response body ──────────────────
     if not response.content:
-        raise HTTPException(status.HTTP_502_BAD_GATEWAY, "Gemini API returned an empty response.")
+        raise HTTPException(
+            status.HTTP_502_BAD_GATEWAY, "Gemini API returned an empty response."
+        )
 
     try:
         response_data = response.json()
     except json.JSONDecodeError:
-        raise HTTPException(status.HTTP_502_BAD_GATEWAY, "Gemini API response was not valid JSON.")
+        raise HTTPException(
+            status.HTTP_502_BAD_GATEWAY, "Gemini API response was not valid JSON."
+        )
 
     try:
         candidates = response_data["candidates"]
         if not candidates:
-            raise HTTPException(status.HTTP_502_BAD_GATEWAY, "Gemini API returned no candidates. The prompt may have been blocked.")
+            raise HTTPException(
+                status.HTTP_502_BAD_GATEWAY,
+                "Gemini API returned no candidates. The prompt may have been blocked.",
+            )
         ai_generated_text = candidates[0]["content"]["parts"][0]["text"]
     except (KeyError, IndexError):
-        raise HTTPException(status.HTTP_502_BAD_GATEWAY, "Gemini API response had an unexpected structure.")
+        raise HTTPException(
+            status.HTTP_502_BAD_GATEWAY,
+            "Gemini API response had an unexpected structure.",
+        )
 
     if not ai_generated_text or not ai_generated_text.strip():
-        raise HTTPException(status.HTTP_502_BAD_GATEWAY, "Gemini API returned empty analysis content.")
+        raise HTTPException(
+            status.HTTP_502_BAD_GATEWAY, "Gemini API returned empty analysis content."
+        )
 
     try:
         result = json.loads(ai_generated_text)
     except json.JSONDecodeError:
-        raise HTTPException(status.HTTP_502_BAD_GATEWAY, "Gemini API returned analysis in an unparseable format.")
+        raise HTTPException(
+            status.HTTP_502_BAD_GATEWAY,
+            "Gemini API returned analysis in an unparseable format.",
+        )
 
     result["provider"] = "gemini"
     return result

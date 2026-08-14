@@ -30,6 +30,7 @@ NOTE:
 # SECTION 1: CREATE USER TESTS
 # =============================================================
 
+
 class TestCreateUser:
     """Tests for POST /users/"""
 
@@ -38,11 +39,14 @@ class TestCreateUser:
         WHAT: Create a user with valid data.
         EXPECT: 201 + user data, no password in response.
         """
-        response = client.post("/users/", json={
-            "email": "createuser@example.com",
-            "password": "ValidPass123!",
-            "full_name": "New User",
-        })
+        response = client.post(
+            "/users/",
+            json={
+                "email": "createuser@example.com",
+                "password": "ValidPass123!",
+                "full_name": "New User",
+            },
+        )
 
         assert response.status_code == 201
         data = response.json()
@@ -56,10 +60,13 @@ class TestCreateUser:
         WHAT: Create user with email that already exists.
         EXPECT: 400 — email already registered.
         """
-        response = client.post("/users/", json={
-            "email": test_user.email,  # Already taken
-            "password": "AnotherPass123!",
-        })
+        response = client.post(
+            "/users/",
+            json={
+                "email": test_user.email,  # Already taken
+                "password": "AnotherPass123!",
+            },
+        )
         assert response.status_code == 400
 
     def test_create_user_missing_required_fields(self, client):
@@ -69,24 +76,31 @@ class TestCreateUser:
 
     def test_create_user_invalid_email(self, client):
         """EXPECT: 422 — EmailStr validation rejects bad format."""
-        response = client.post("/users/", json={
-            "email": "not-valid",
-            "password": "ValidPass123!",
-        })
+        response = client.post(
+            "/users/",
+            json={
+                "email": "not-valid",
+                "password": "ValidPass123!",
+            },
+        )
         assert response.status_code == 422
 
     def test_create_user_short_password(self, client):
         """EXPECT: 422 — password min_length=8."""
-        response = client.post("/users/", json={
-            "email": "test@example.com",
-            "password": "abc",  # Too short
-        })
+        response = client.post(
+            "/users/",
+            json={
+                "email": "test@example.com",
+                "password": "abc",  # Too short
+            },
+        )
         assert response.status_code == 422
 
 
 # =============================================================
 # SECTION 2: GET USER BY ID TESTS
 # =============================================================
+
 
 class TestGetUser:
     """Tests for GET /users/{user_id}"""
@@ -125,6 +139,7 @@ class TestGetUser:
 # SECTION 3: LIST USERS TESTS
 # =============================================================
 
+
 class TestListUsers:
     """Tests for GET /users/"""
 
@@ -158,6 +173,7 @@ class TestListUsers:
 # =============================================================
 # SECTION 4: UPDATE USER TESTS
 # =============================================================
+
 
 class TestUpdateUser:
     """Tests for PATCH /users/{user_id}"""
@@ -202,6 +218,7 @@ class TestUpdateUser:
 # =============================================================
 # SECTION 5: DELETE USER TESTS
 # =============================================================
+
 
 class TestDeleteUser:
     """Tests for DELETE /users/{user_id}"""

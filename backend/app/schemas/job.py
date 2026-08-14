@@ -2,7 +2,9 @@
 
 from datetime import datetime
 from typing import Optional
+
 from pydantic import BaseModel, Field
+
 from app.models.job import ApplicationStatus
 
 
@@ -11,41 +13,33 @@ from app.models.job import ApplicationStatus
 # ─────────────────────────────────────────────────────────────
 class JobCreate(BaseModel):
     """Schema for creating a new job application."""
-    
+
     company_name: str = Field(
         min_length=1,
         max_length=255,
         description="Name of the company",
-        examples=["Google"]
+        examples=["Google"],
     )
     job_title: str = Field(
         min_length=1,
         max_length=255,
         description="The role/position applied for",
-        examples=["Backend Developer Intern"]
+        examples=["Backend Developer Intern"],
     )
     job_description: Optional[str] = Field(
-        default=None,
-        description="Full job description text"
+        default=None, description="Full job description text"
     )
     job_url: Optional[str] = Field(
-        default=None,
-        max_length=500,
-        description="Link to original job posting"
+        default=None, max_length=500, description="Link to original job posting"
     )
     location: Optional[str] = Field(
-        default=None,
-        max_length=255,
-        examples=["Remote", "Bangalore, India"]
+        default=None, max_length=255, examples=["Remote", "Bangalore, India"]
     )
     status: ApplicationStatus = Field(
         default=ApplicationStatus.APPLIED,
-        description="Current status of this application"
+        description="Current status of this application",
     )
-    notes: Optional[str] = Field(
-        default=None,
-        description="Personal notes"
-    )
+    notes: Optional[str] = Field(default=None, description="Personal notes")
 
 
 # ─────────────────────────────────────────────────────────────
@@ -53,7 +47,7 @@ class JobCreate(BaseModel):
 # ─────────────────────────────────────────────────────────────
 class JobUpdate(BaseModel):
     """Schema for updating an existing job application via PATCH."""
-    
+
     company_name: Optional[str] = Field(default=None, max_length=255)
     job_title: Optional[str] = Field(default=None, max_length=255)
     job_description: Optional[str] = Field(default=None)
@@ -70,7 +64,7 @@ class JobUpdate(BaseModel):
 # ─────────────────────────────────────────────────────────────
 class JobResponse(BaseModel):
     """Schema for returning job application data to the client."""
-    
+
     id: int
     user_id: int
     company_name: str

@@ -28,6 +28,7 @@ All tests use fixtures from conftest.py (injected by pytest).
 # SECTION 1: CREATE JOB TESTS
 # =============================================================
 
+
 class TestCreateJob:
     """
     Tests for POST /jobs/
@@ -68,18 +69,22 @@ class TestCreateJob:
         assert "id" in data
         assert data["company_name"] == "OpenAI"
         assert data["job_title"] == "ML Engineer"
-        assert data["status"] == "Applied"           # Default status
-        assert data["user_id"] is not None           # Owned by our user
+        assert data["status"] == "Applied"  # Default status
+        assert data["user_id"] is not None  # Owned by our user
 
     def test_create_job_with_custom_status(self, client, auth_headers):
         """
         WHAT: Create a job with status = "Interview" (not the default).
         EXPECT: 201 + status reflects what we sent.
         """
-        response = client.post("/jobs/", json={
-            **self.VALID_JOB,
-            "status": "Interview",
-        }, headers=auth_headers)
+        response = client.post(
+            "/jobs/",
+            json={
+                **self.VALID_JOB,
+                "status": "Interview",
+            },
+            headers=auth_headers,
+        )
 
         assert response.status_code == 201
         assert response.json()["status"] == "Interview"
@@ -89,25 +94,33 @@ class TestCreateJob:
         WHAT: Create a job with only the 2 required fields.
         EXPECT: 201 — all optional fields default to None.
         """
-        response = client.post("/jobs/", json={
-            "company_name": "Minimal Corp",
-            "job_title": "Developer",
-        }, headers=auth_headers)
+        response = client.post(
+            "/jobs/",
+            json={
+                "company_name": "Minimal Corp",
+                "job_title": "Developer",
+            },
+            headers=auth_headers,
+        )
 
         assert response.status_code == 201
         data = response.json()
-        assert data["location"] is None        # Optional, not provided
-        assert data["notes"] is None           # Optional, not provided
-        assert data["job_url"] is None         # Optional, not provided
+        assert data["location"] is None  # Optional, not provided
+        assert data["notes"] is None  # Optional, not provided
+        assert data["job_url"] is None  # Optional, not provided
 
     def test_create_job_missing_company_name(self, client, auth_headers):
         """
         WHAT: Omit the required 'company_name' field.
         EXPECT: HTTP 422 — Pydantic validation error.
         """
-        response = client.post("/jobs/", json={
-            "job_title": "Engineer",  # No company_name!
-        }, headers=auth_headers)
+        response = client.post(
+            "/jobs/",
+            json={
+                "job_title": "Engineer",  # No company_name!
+            },
+            headers=auth_headers,
+        )
 
         assert response.status_code == 422
 
@@ -116,9 +129,13 @@ class TestCreateJob:
         WHAT: Omit the required 'job_title' field.
         EXPECT: HTTP 422.
         """
-        response = client.post("/jobs/", json={
-            "company_name": "SomeCorp",  # No job_title!
-        }, headers=auth_headers)
+        response = client.post(
+            "/jobs/",
+            json={
+                "company_name": "SomeCorp",  # No job_title!
+            },
+            headers=auth_headers,
+        )
 
         assert response.status_code == 422
 
@@ -132,10 +149,14 @@ class TestCreateJob:
         schemas/job.py:
             company_name: str = Field(min_length=1, max_length=255, ...)
         """
-        response = client.post("/jobs/", json={
-            "company_name": "",        # Empty string - violates min_length=1
-            "job_title": "Engineer",
-        }, headers=auth_headers)
+        response = client.post(
+            "/jobs/",
+            json={
+                "company_name": "",  # Empty string - violates min_length=1
+                "job_title": "Engineer",
+            },
+            headers=auth_headers,
+        )
 
         assert response.status_code == 422
 
@@ -146,11 +167,15 @@ class TestCreateJob:
 
         Valid values: "Applied", "OA Scheduled", "Interview", "Rejected", "Selected"
         """
-        response = client.post("/jobs/", json={
-            "company_name": "Corp",
-            "job_title": "Dev",
-            "status": "FLYING",  # Not a valid ApplicationStatus
-        }, headers=auth_headers)
+        response = client.post(
+            "/jobs/",
+            json={
+                "company_name": "Corp",
+                "job_title": "Dev",
+                "status": "FLYING",  # Not a valid ApplicationStatus
+            },
+            headers=auth_headers,
+        )
 
         assert response.status_code == 422
 
@@ -173,6 +198,7 @@ class TestCreateJob:
 # SECTION 2: READ JOBS TESTS
 # =============================================================
 
+
 class TestReadJobs:
     """
     Tests for GET /jobs/ (list) and GET /jobs/{id} (single job)
@@ -192,10 +218,15 @@ class TestReadJobs:
         assert response.status_code == 200
         assert response.json() == []  # Empty list
 
-    def test_get_all_jobs_returns_only_own_jobs(self, client, db_session,
-                                                 test_user, second_user,
-                                                 auth_headers,
-                                                 second_user_auth_headers):
+    def test_get_all_jobs_returns_only_own_jobs(
+        self,
+        client,
+        db_session,
+        test_user,
+        second_user,
+        auth_headers,
+        second_user_auth_headers,
+    ):
         """
         WHAT: User A's job list should NOT include User B's jobs.
         EXPECT: Each user only sees their own jobs.
@@ -213,16 +244,24 @@ class TestReadJobs:
         4. Assert second_user only sees 1 job (their own)
         """
         # Create job for test_user
-        client.post("/jobs/", json={
-            "company_name": "UserA Corp",
-            "job_title": "UserA Job",
-        }, headers=auth_headers)
+        client.post(
+            "/jobs/",
+            json={
+                "company_name": "UserA Corp",
+                "job_title": "UserA Job",
+            },
+            headers=auth_headers,
+        )
 
         # Create job for second_user
-        client.post("/jobs/", json={
-            "company_name": "UserB Corp",
-            "job_title": "UserB Job",
-        }, headers=second_user_auth_headers)
+        client.post(
+            "/jobs/",
+            json={
+                "company_name": "UserB Corp",
+                "job_title": "UserB Job",
+            },
+            headers=second_user_auth_headers,
+        )
 
         # test_user should only see their own job
         response_a = client.get("/jobs/", headers=auth_headers)
@@ -271,8 +310,9 @@ class TestReadJobs:
         response = client.get("/jobs/99999999", headers=auth_headers)
         assert response.status_code == 404
 
-    def test_get_single_job_wrong_user(self, client, sample_job,
-                                        second_user_auth_headers):
+    def test_get_single_job_wrong_user(
+        self, client, sample_job, second_user_auth_headers
+    ):
         """
         WHAT: User B tries to read User A's job.
         EXPECT: HTTP 404 (or 403).
@@ -315,6 +355,7 @@ class TestReadJobs:
 # SECTION 3: UPDATE JOB TESTS
 # =============================================================
 
+
 class TestUpdateJob:
     """
     Tests for PATCH /jobs/{job_id}
@@ -341,8 +382,8 @@ class TestUpdateJob:
         assert response.status_code == 200
 
         data = response.json()
-        assert data["company_name"] == "Updated Corp"   # Updated!
-        assert data["status"] == "Interview"            # Updated!
+        assert data["company_name"] == "Updated Corp"  # Updated!
+        assert data["status"] == "Interview"  # Updated!
         assert data["job_title"] == sample_job.job_title  # Unchanged!
 
     def test_update_job_partial_fields(self, client, sample_job, auth_headers):
@@ -360,8 +401,8 @@ class TestUpdateJob:
 
         assert response.status_code == 200
         data = response.json()
-        assert data["notes"] == "Updated note"        # Changed
-        assert data["job_title"] == original_title    # Unchanged
+        assert data["notes"] == "Updated note"  # Changed
+        assert data["job_title"] == original_title  # Unchanged
 
     def test_update_job_not_found(self, client, auth_headers):
         """
@@ -376,8 +417,7 @@ class TestUpdateJob:
 
         assert response.status_code == 404
 
-    def test_update_job_wrong_user(self, client, sample_job,
-                                    second_user_auth_headers):
+    def test_update_job_wrong_user(self, client, sample_job, second_user_auth_headers):
         """
         WHAT: User B tries to update User A's job.
         EXPECT: 404 (or 403) — authorization check.
@@ -420,6 +460,7 @@ class TestUpdateJob:
 # SECTION 4: DELETE JOB TESTS
 # =============================================================
 
+
 class TestDeleteJob:
     """
     Tests for DELETE /jobs/{job_id}
@@ -443,7 +484,7 @@ class TestDeleteJob:
         )
 
         assert delete_response.status_code == 204  # No Content
-        assert delete_response.content == b""       # Truly empty body
+        assert delete_response.content == b""  # Truly empty body
 
         # Step 2: Verify it's gone
         get_response = client.get(
@@ -461,8 +502,7 @@ class TestDeleteJob:
         response = client.delete("/jobs/99999999", headers=auth_headers)
         assert response.status_code == 404
 
-    def test_delete_job_wrong_user(self, client, sample_job,
-                                    second_user_auth_headers):
+    def test_delete_job_wrong_user(self, client, sample_job, second_user_auth_headers):
         """
         WHAT: User B tries to delete User A's job.
         EXPECT: 404 (or 403) — authorization check.

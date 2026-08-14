@@ -1,31 +1,63 @@
 # backend/app/services/ai_service.py
 
 import json
+
 import httpx
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.services.gemini_provider import analyze_resume_with_gemini
-
-from app.core.exceptions import not_found_exception, bad_request_exception
-from fastapi import HTTPException, status
-from app.models.user import User
+from app.core.exceptions import bad_request_exception, not_found_exception
 from app.models.job import JobApplication
 from app.models.resume import Resume
+from app.models.user import User
 from app.schemas.ai import AIMatchResponse
+from app.services.gemini_provider import analyze_resume_with_gemini
 from app.utils.pdf_utils import extract_text_from_pdf
-
 
 # ─────────────────────────────────────────────────────────────
 # Same mock skill vocabulary as Phase 9 — unchanged
 # ─────────────────────────────────────────────────────────────
 COMMON_SKILLS = [
-    "python", "java", "javascript", "typescript", "react", "node",
-    "fastapi", "django", "flask", "sql", "postgresql", "mysql", "mongodb",
-    "docker", "kubernetes", "aws", "azure", "gcp", "git", "rest api",
-    "graphql", "redis", "sqlalchemy", "pandas", "numpy", "machine learning",
-    "html", "css", "tailwind", "next.js", "express", "microservices",
-    "ci/cd", "jenkins", "linux", "agile", "scrum", "testing", "pytest",
+    "python",
+    "java",
+    "javascript",
+    "typescript",
+    "react",
+    "node",
+    "fastapi",
+    "django",
+    "flask",
+    "sql",
+    "postgresql",
+    "mysql",
+    "mongodb",
+    "docker",
+    "kubernetes",
+    "aws",
+    "azure",
+    "gcp",
+    "git",
+    "rest api",
+    "graphql",
+    "redis",
+    "sqlalchemy",
+    "pandas",
+    "numpy",
+    "machine learning",
+    "html",
+    "css",
+    "tailwind",
+    "next.js",
+    "express",
+    "microservices",
+    "ci/cd",
+    "jenkins",
+    "linux",
+    "agile",
+    "scrum",
+    "testing",
+    "pytest",
 ]
 
 
@@ -53,7 +85,9 @@ def mock_analyze_resume(resume_text: str, job_description: str) -> dict:
     suggestions = []
     if missing_skills:
         top_missing = list(missing_skills)[:3]
-        suggestions.append(f"Consider highlighting experience with: {', '.join(top_missing)}")
+        suggestions.append(
+            f"Consider highlighting experience with: {', '.join(top_missing)}"
+        )
     if score < 50:
         suggestions.append("Your resume may need significant tailoring for this role")
     elif score < 80:
@@ -303,7 +337,9 @@ async def match_resume_to_job(
     else:
         resume = (
             db.query(Resume)
-            .filter(Resume.user_id == current_user.id, Resume.is_active == True)  # noqa: E712
+            .filter(
+                Resume.user_id == current_user.id, Resume.is_active == True
+            )  # noqa: E712
             .first()
         )
         if not resume:

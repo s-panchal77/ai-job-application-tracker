@@ -5,10 +5,10 @@
 #
 # Think of this as a "model registry" — every model must be listed here.
 
-from app.models.user import User
 from app.models.job import JobApplication
 from app.models.resume import Resume
 from app.models.resume_analysis import ResumeAnalysis
+from app.models.user import User
 
 # When new models are created (resume, interview, etc.),
 # add their imports here too.

@@ -12,7 +12,6 @@ from app.schemas.job import JobCreate, JobResponse, JobStatsResponse, JobUpdate
 from app.services import job_service
 from app.services.auth_service import get_current_user
 
-
 router = APIRouter(
     prefix="/jobs",
     tags=["Jobs"],
@@ -22,6 +21,7 @@ router = APIRouter(
 # ==========================================================
 # Create Job
 # ==========================================================
+
 
 @router.post(
     "/",
@@ -42,6 +42,7 @@ def create_job(
 # ==========================================================
 # Get All Jobs
 # ==========================================================
+
 
 @router.get(
     "/",
@@ -90,6 +91,7 @@ def list_jobs(
 # Get Job Stats  (MUST be before /{job_id} to avoid route collision)
 # ==========================================================
 
+
 @router.get(
     "/stats",
     response_model=JobStatsResponse,
@@ -108,6 +110,7 @@ def get_job_stats(
 # ==========================================================
 # Get Single Job
 # ==========================================================
+
 
 @router.get(
     "/{job_id}",
@@ -133,6 +136,7 @@ def get_job(
 # ==========================================================
 # Update Job
 # ==========================================================
+
 
 @router.patch(
     "/{job_id}",
@@ -160,6 +164,7 @@ def update_job(
 # ==========================================================
 # Delete Job
 # ==========================================================
+
 
 @router.delete(
     "/{job_id}",

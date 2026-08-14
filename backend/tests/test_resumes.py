@@ -29,12 +29,12 @@ MOCKING FILE SYSTEM:
 
 import io
 import os
-from unittest.mock import patch, AsyncMock, MagicMock
-
+from unittest.mock import AsyncMock, MagicMock, patch
 
 # =============================================================
 # SECTION 1: RESUME UPLOAD TESTS
 # =============================================================
+
 
 class TestResumeUpload:
     """
@@ -89,7 +89,7 @@ class TestResumeUpload:
         data = response.json()
         assert "id" in data
         assert data["original_filename"] == "resume.pdf"
-        assert data["is_active"] is True     # First upload is active by default
+        assert data["is_active"] is True  # First upload is active by default
 
     def test_upload_resume_with_version_label(self, client, auth_headers, tmp_path):
         """
@@ -134,9 +134,7 @@ class TestResumeUpload:
         with patch("app.utils.file_utils.UPLOAD_DIR", str(tmp_path)):
             response = client.post(
                 "/resumes/upload",
-                files={
-                    "file": ("document.txt", b"plain text content", "text/plain")
-                },
+                files={"file": ("document.txt", b"plain text content", "text/plain")},
                 headers=auth_headers,
             )
 
@@ -156,6 +154,7 @@ class TestResumeUpload:
 # =============================================================
 # SECTION 2: LIST RESUMES TESTS
 # =============================================================
+
 
 class TestListResumes:
     """Tests for GET /resumes/"""
@@ -184,6 +183,7 @@ class TestListResumes:
 # SECTION 3: GET SINGLE RESUME TESTS
 # =============================================================
 
+
 class TestGetResume:
     """Tests for GET /resumes/{resume_id}"""
 
@@ -204,6 +204,7 @@ class TestGetResume:
 # =============================================================
 # SECTION 4: DELETE RESUME TESTS
 # =============================================================
+
 
 class TestDeleteResume:
     """Tests for DELETE /resumes/{resume_id}"""

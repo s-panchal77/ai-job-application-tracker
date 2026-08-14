@@ -50,7 +50,6 @@ from starlette.requests import Request
 
 from app.core.config import settings
 
-
 # ==========================================================
 # Log Format
 # ==========================================================
@@ -90,9 +89,9 @@ def setup_logging() -> None:
     logging.getLogger("httpx").setLevel(logging.WARNING)
 
     logging.basicConfig(
-        level=log_level,          # Minimum level to record
-        format=LOG_FORMAT,        # How each line looks
-        datefmt=DATE_FORMAT,      # How the timestamp looks
+        level=log_level,  # Minimum level to record
+        format=LOG_FORMAT,  # How each line looks
+        datefmt=DATE_FORMAT,  # How the timestamp looks
     )
 
     # Get the root app logger to confirm startup
@@ -125,6 +124,7 @@ def get_logger(name: str) -> logging.Logger:
 # ==========================================================
 # Request Logging Middleware
 # ==========================================================
+
 
 class RequestLoggingMiddleware(BaseHTTPMiddleware):
     """
@@ -160,13 +160,15 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         start_time = time.perf_counter()
 
         # Extract client IP — check X-Forwarded-For first (reverse proxy)
-        client_ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "unknown")
+        client_ip = request.headers.get(
+            "x-forwarded-for", request.client.host if request.client else "unknown"
+        )
 
         self.logger.info(
             "→ %s %s | client=%s",
-            request.method,   # GET, POST, PATCH, DELETE
-            request.url.path, # /jobs/, /auth/login
-            client_ip,        # 192.168.1.1 or "unknown"
+            request.method,  # GET, POST, PATCH, DELETE
+            request.url.path,  # /jobs/, /auth/login
+            client_ip,  # 192.168.1.1 or "unknown"
         )
 
         # ── ROUTE HANDLER RUNS HERE ───────────────────────────
@@ -187,10 +189,10 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 
         log_fn(
             "← %s %s %s | %.1fms",
-            response.status_code, # 200, 201, 404, 500
-            request.method,        # GET, POST
-            request.url.path,      # /jobs/
-            duration_ms,           # 45.3
+            response.status_code,  # 200, 201, 404, 500
+            request.method,  # GET, POST
+            request.url.path,  # /jobs/
+            duration_ms,  # 45.3
         )
 
         return response

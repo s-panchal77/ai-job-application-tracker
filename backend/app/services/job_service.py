@@ -8,10 +8,10 @@ from app.models.job import ApplicationStatus, JobApplication
 from app.models.user import User
 from app.schemas.job import JobCreate, JobUpdate
 
-
 # ==========================================================
 # Helper Function
 # ==========================================================
+
 
 def _get_job_owned_by_user(
     db: Session,
@@ -23,11 +23,7 @@ def _get_job_owned_by_user(
     Returns 404 if the job doesn't exist or isn't owned by the user.
     """
 
-    job = (
-        db.query(JobApplication)
-        .filter(JobApplication.id == job_id)
-        .first()
-    )
+    job = db.query(JobApplication).filter(JobApplication.id == job_id).first()
 
     if not job or job.user_id != current_user.id:
         raise not_found_exception("Job", job_id)
@@ -38,6 +34,7 @@ def _get_job_owned_by_user(
 # ==========================================================
 # Create Job
 # ==========================================================
+
 
 def create_job(
     db: Session,
@@ -70,6 +67,7 @@ def create_job(
 # Get Single Job
 # ==========================================================
 
+
 def get_job_by_id(
     db: Session,
     job_id: int,
@@ -86,6 +84,7 @@ def get_job_by_id(
 # Get All Jobs
 # ==========================================================
 
+
 def get_all_jobs(
     db: Session,
     current_user: User,
@@ -99,9 +98,7 @@ def get_all_jobs(
     optional filtering, searching, and pagination.
     """
 
-    query = db.query(JobApplication).filter(
-        JobApplication.user_id == current_user.id
-    )
+    query = db.query(JobApplication).filter(JobApplication.user_id == current_user.id)
 
     # Filter by application status
     if status:
@@ -118,17 +115,13 @@ def get_all_jobs(
             )
         )
 
-    return (
-        query
-        .offset(skip)
-        .limit(limit)
-        .all()
-    )
+    return query.offset(skip).limit(limit).all()
 
 
 # ==========================================================
 # Update Job
 # ==========================================================
+
 
 def update_job(
     db: Session,
@@ -157,6 +150,7 @@ def update_job(
 # Delete Job
 # ==========================================================
 
+
 def delete_job(
     db: Session,
     job_id: int,
@@ -175,6 +169,7 @@ def delete_job(
 # ==========================================================
 # Job Stats
 # ==========================================================
+
 
 def get_job_stats(
     db: Session,

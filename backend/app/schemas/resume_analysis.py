@@ -1,8 +1,9 @@
 # backend/app/schemas/resume_analysis.py
 
-from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
+
+from pydantic import BaseModel
 
 
 class AnalysisStatusResponse(BaseModel):
@@ -13,9 +14,10 @@ class AnalysisStatusResponse(BaseModel):
     background task finishes (or if it failed, only error_message
     is populated).
     """
+
     resume_id: int
     job_id: int
-    status: str                              # "pending" | "completed" | "failed"
+    status: str  # "pending" | "completed" | "failed"
     match_score: Optional[int] = None
     matched_skills: Optional[list[str]] = None
     missing_skills: Optional[list[str]] = None

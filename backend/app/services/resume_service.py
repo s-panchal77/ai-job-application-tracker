@@ -2,37 +2,26 @@
 
 from datetime import datetime, timezone
 
-from fastapi import UploadFile, HTTPException
+from fastapi import HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
+from app.core.exceptions import bad_request_exception, not_found_exception
 from app.db.database import SessionLocal
-
-from app.core.exceptions import (
-    not_found_exception,
-    bad_request_exception,
-)
-
-from app.models.user import User
-from app.models.resume import Resume
 from app.models.job import JobApplication
-from app.models.resume_analysis import ResumeAnalysis, AnalysisStatus
-
+from app.models.resume import Resume
+from app.models.resume_analysis import AnalysisStatus, ResumeAnalysis
+from app.models.user import User
 from app.schemas.resume import ResumeListResponse
-
 from app.services.ai_service import get_ai_analysis
-
+from app.utils.file_utils import (delete_file_from_disk,
+                                  generate_unique_filename, save_file_to_disk,
+                                  validate_pdf_file)
 from app.utils.pdf_utils import extract_text_from_pdf
-
-from app.utils.file_utils import (
-    delete_file_from_disk,
-    generate_unique_filename,
-    save_file_to_disk,
-    validate_pdf_file,
-)
 
 # ==========================================================
 # Helper Function
 # ==========================================================
+
 
 def _get_resume_owned_by_user(
     db: Session,
@@ -43,11 +32,7 @@ def _get_resume_owned_by_user(
     Fetch a resume and ensure it belongs to the current user.
     """
 
-    resume = (
-        db.query(Resume)
-        .filter(Resume.id == resume_id)
-        .first()
-    )
+    resume = db.query(Resume).filter(Resume.id == resume_id).first()
 
     if not resume or resume.user_id != current_user.id:
         raise not_found_exception("Resume", resume_id)
@@ -58,6 +43,7 @@ def _get_resume_owned_by_user(
 # ==========================================================
 # Upload Resume
 # ==========================================================
+
 
 async def upload_resume(
     db: Session,
@@ -89,7 +75,9 @@ async def upload_resume(
 
     (
         db.query(Resume)
-        .filter(Resume.user_id == current_user.id, Resume.is_active == True)  # noqa: E712
+        .filter(
+            Resume.user_id == current_user.id, Resume.is_active == True
+        )  # noqa: E712
         .update({"is_active": False})
     )
 
@@ -124,6 +112,7 @@ async def upload_resume(
 # Get All Resumes
 # ==========================================================
 
+
 def get_all_resumes(
     db: Session,
     current_user: User,
@@ -147,6 +136,7 @@ def get_all_resumes(
 # Get Resume
 # ==========================================================
 
+
 def get_resume_by_id(
     db: Session,
     resume_id: int,
@@ -163,6 +153,7 @@ def get_resume_by_id(
 # ==========================================================
 # Set Active Resume
 # ==========================================================
+
 
 def set_active_resume(
     db: Session,
@@ -194,6 +185,7 @@ def set_active_resume(
 # Delete Resume
 # ==========================================================
 
+
 def delete_resume(
     db: Session,
     resume_id: int,
@@ -213,9 +205,11 @@ def delete_resume(
 
     delete_file_from_disk(file_path)
 
+
 # ==========================================================
 # Background Task
 # ==========================================================
+
 
 async def analyze_resume_background(resume_id: int, job_id: int, user_id: int) -> None:
     """
@@ -281,10 +275,9 @@ async def analyze_resume_background(resume_id: int, job_id: int, user_id: int) -
 # Get Analysis Result
 # ==========================================================
 
+
 def get_analysis_status(
-    db: Session,
-    resume_id: int,
-    current_user: User
+    db: Session, resume_id: int, current_user: User
 ) -> ResumeAnalysis:
     """
     Returns analysis status/result for a resume.
@@ -295,9 +288,7 @@ def get_analysis_status(
     get_resume_by_id(db, resume_id, current_user)
 
     analysis = (
-        db.query(ResumeAnalysis)
-        .filter(ResumeAnalysis.resume_id == resume_id)
-        .first()
+        db.query(ResumeAnalysis).filter(ResumeAnalysis.resume_id == resume_id).first()
     )
 
     if not analysis:

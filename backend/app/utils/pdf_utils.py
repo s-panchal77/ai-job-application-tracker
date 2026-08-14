@@ -1,8 +1,9 @@
 # backend/app/utils/pdf_utils.py
 
 import os
-from pypdf import PdfReader
+
 from fastapi import HTTPException, status
+from pypdf import PdfReader
 
 
 def extract_text_from_pdf(relative_file_path: str) -> str:
@@ -23,9 +24,9 @@ def extract_text_from_pdf(relative_file_path: str) -> str:
     # Build the absolute path to the file on disk
     full_path = os.path.normpath(
         os.path.join(
-            os.path.dirname(__file__),   # .../app/utils/
-            "..",                         # .../app/
-            "..",                         # .../backend/
+            os.path.dirname(__file__),  # .../app/utils/
+            "..",  # .../app/
+            "..",  # .../backend/
             relative_file_path,
         )
     )

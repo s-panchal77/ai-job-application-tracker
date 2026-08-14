@@ -4,10 +4,10 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-
 # ==========================================================
 # Response Schema
 # ==========================================================
+
 
 class ResumeResponse(BaseModel):
     """
@@ -29,6 +29,7 @@ class ResumeResponse(BaseModel):
 # ==========================================================
 # List Response Schema
 # ==========================================================
+
 
 class ResumeListResponse(BaseModel):
     """

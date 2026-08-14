@@ -1,13 +1,15 @@
 # backend/app/services/auth_service.py
 
-from sqlalchemy.orm import Session
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.orm import Session
 
+from app.core.exceptions import credentials_exception, unauthorized_exception
+from app.core.security import (create_access_token, decode_access_token,
+                               verify_password)
 from app.db.database import get_db
 from app.models.user import User
-from app.core.security import verify_password, create_access_token, decode_access_token
-from app.core.exceptions import credentials_exception, unauthorized_exception
+
 # ↑ Both auth-related exceptions now come from one place
 
 

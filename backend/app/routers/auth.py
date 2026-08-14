@@ -5,10 +5,9 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
-from app.schemas.user import UserCreate, UserResponse
 from app.schemas.token import Token
-from app.services import user_service, auth_service
-
+from app.schemas.user import UserCreate, UserResponse
+from app.services import auth_service, user_service
 
 router = APIRouter(
     prefix="/auth",
@@ -63,7 +62,7 @@ def login(
     """
     access_token = auth_service.login_for_access_token(
         db=db,
-        email=form_data.username,   # OAuth2 spec calls it "username", we treat it as email
+        email=form_data.username,  # OAuth2 spec calls it "username", we treat it as email
         password=form_data.password,
     )
 

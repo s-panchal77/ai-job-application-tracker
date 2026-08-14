@@ -38,6 +38,7 @@ HOW PYTEST FIXTURES WORK HERE:
 # SECTION 1: REGISTRATION TESTS
 # =============================================================
 
+
 class TestRegistration:
     """
     Tests for POST /auth/register
@@ -62,31 +63,37 @@ class TestRegistration:
           - "password" not in.. → We NEVER send hashed password back
           - "is_active" == True → New users are active by default
         """
-        response = client.post("/auth/register", json={
-            "email": "newuser@example.com",
-            "password": "SecurePass123!",
-            "full_name": "New User",
-        })
+        response = client.post(
+            "/auth/register",
+            json={
+                "email": "newuser@example.com",
+                "password": "SecurePass123!",
+                "full_name": "New User",
+            },
+        )
 
         assert response.status_code == 201
 
         data = response.json()
-        assert "id" in data                              # Got a real DB ID
-        assert data["email"] == "newuser@example.com"   # Email saved correctly
-        assert data["full_name"] == "New User"          # Name saved correctly
-        assert data["is_active"] is True                # Active by default
-        assert "password" not in data                   # Password NEVER in response
-        assert "hashed_password" not in data            # Hash NEVER in response
+        assert "id" in data  # Got a real DB ID
+        assert data["email"] == "newuser@example.com"  # Email saved correctly
+        assert data["full_name"] == "New User"  # Name saved correctly
+        assert data["is_active"] is True  # Active by default
+        assert "password" not in data  # Password NEVER in response
+        assert "hashed_password" not in data  # Hash NEVER in response
 
     def test_register_without_full_name(self, client):
         """
         WHAT: Register with only required fields (email + password).
         EXPECT: 201 — full_name is optional.
         """
-        response = client.post("/auth/register", json={
-            "email": "noname@example.com",
-            "password": "SecurePass123!",
-        })
+        response = client.post(
+            "/auth/register",
+            json={
+                "email": "noname@example.com",
+                "password": "SecurePass123!",
+            },
+        )
 
         assert response.status_code == 201
         data = response.json()
@@ -103,15 +110,20 @@ class TestRegistration:
         We then try to register again with that same email.
         The service should detect the conflict and raise 400.
         """
-        response = client.post("/auth/register", json={
-            "email": "testuser@example.com",  # Already exists (from test_user)
-            "password": "AnotherPass123!",
-        })
+        response = client.post(
+            "/auth/register",
+            json={
+                "email": "testuser@example.com",  # Already exists (from test_user)
+                "password": "AnotherPass123!",
+            },
+        )
 
         # 400 Bad Request: "email already registered"
         assert response.status_code == 400
-        assert "already" in response.json()["detail"].lower() or \
-               "email" in response.json()["detail"].lower()
+        assert (
+            "already" in response.json()["detail"].lower()
+            or "email" in response.json()["detail"].lower()
+        )
 
     def test_register_invalid_email(self, client):
         """
@@ -125,10 +137,13 @@ class TestRegistration:
         but the DATA inside it failed validation rules.
         "not-an-email" doesn't match EmailStr's validation pattern.
         """
-        response = client.post("/auth/register", json={
-            "email": "not-an-email",
-            "password": "SecurePass123!",
-        })
+        response = client.post(
+            "/auth/register",
+            json={
+                "email": "not-an-email",
+                "password": "SecurePass123!",
+            },
+        )
 
         assert response.status_code == 422  # Validation error
         # Our custom validation handler wraps errors — check the full response body
@@ -148,10 +163,13 @@ class TestRegistration:
             password: str = Field(min_length=8, max_length=72, ...)
         Pydantic enforces this BEFORE the route handler runs.
         """
-        response = client.post("/auth/register", json={
-            "email": "shortpass@example.com",
-            "password": "abc",  # Only 3 chars, min is 8
-        })
+        response = client.post(
+            "/auth/register",
+            json={
+                "email": "shortpass@example.com",
+                "password": "abc",  # Only 3 chars, min is 8
+            },
+        )
 
         assert response.status_code == 422
 
@@ -160,9 +178,12 @@ class TestRegistration:
         WHAT: Send registration request with no email field.
         EXPECT: HTTP 422 — required field missing.
         """
-        response = client.post("/auth/register", json={
-            "password": "SecurePass123!",
-        })
+        response = client.post(
+            "/auth/register",
+            json={
+                "password": "SecurePass123!",
+            },
+        )
 
         assert response.status_code == 422
 
@@ -171,9 +192,12 @@ class TestRegistration:
         WHAT: Send registration request with no password field.
         EXPECT: HTTP 422 — required field missing.
         """
-        response = client.post("/auth/register", json={
-            "email": "nopassword@example.com",
-        })
+        response = client.post(
+            "/auth/register",
+            json={
+                "email": "nopassword@example.com",
+            },
+        )
 
         assert response.status_code == 422
 
@@ -189,6 +213,7 @@ class TestRegistration:
 # =============================================================
 # SECTION 2: LOGIN TESTS
 # =============================================================
+
 
 class TestLogin:
     """
@@ -214,9 +239,9 @@ class TestLogin:
         response = client.post(
             "/auth/login",
             data={
-                "username": test_user.email,       # OAuth2 calls it 'username'
+                "username": test_user.email,  # OAuth2 calls it 'username'
                 "password": test_user.plain_password,
-            }
+            },
         )
 
         assert response.status_code == 200
@@ -243,7 +268,7 @@ class TestLogin:
             data={
                 "username": test_user.email,
                 "password": "WrongPassword999!",
-            }
+            },
         )
 
         assert response.status_code == 401
@@ -258,7 +283,7 @@ class TestLogin:
             data={
                 "username": "ghost@example.com",
                 "password": "AnyPassword123!",
-            }
+            },
         )
 
         assert response.status_code == 401
@@ -269,8 +294,7 @@ class TestLogin:
         EXPECT: HTTP 422 — required form field missing.
         """
         response = client.post(
-            "/auth/login",
-            data={"username": test_user.email}  # No password
+            "/auth/login", data={"username": test_user.email}  # No password
         )
 
         assert response.status_code == 422
@@ -281,8 +305,7 @@ class TestLogin:
         EXPECT: HTTP 422 — required form field missing.
         """
         response = client.post(
-            "/auth/login",
-            data={"password": "SomePassword123!"}  # No username
+            "/auth/login", data={"password": "SomePassword123!"}  # No username
         )
 
         assert response.status_code == 422
@@ -312,7 +335,7 @@ class TestLogin:
             data={
                 "username": test_user.email,
                 "password": test_user.plain_password,
-            }
+            },
         )
 
         token = response.json()["access_token"]
@@ -324,6 +347,7 @@ class TestLogin:
 # =============================================================
 # SECTION 3: PROTECTED ROUTE TESTS (GET /auth/me)
 # =============================================================
+
 
 class TestGetCurrentUser:
     """
@@ -405,7 +429,9 @@ class TestGetCurrentUser:
         will see it's expired and return None, causing 401.
         """
         from datetime import datetime, timedelta, timezone
+
         from jose import jwt
+
         from app.core.config import settings
 
         # Create a token that expired 1 hour ago
@@ -433,6 +459,7 @@ class TestGetCurrentUser:
         format, they cannot forge a token without our SECRET_KEY.
         """
         from jose import jwt
+
         from app.core.config import settings
 
         # Sign with a DIFFERENT key

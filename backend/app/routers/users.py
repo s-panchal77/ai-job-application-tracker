@@ -2,10 +2,10 @@
 
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
+
 from app.db.database import get_db
 from app.schemas.user import UserCreate, UserResponse
 from app.services import user_service
-
 
 # ─────────────────────────────────────────────────────────────
 # APIRouter — a "mini FastAPI app" that we plug into main.py
@@ -52,7 +52,9 @@ def list_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 # UPDATE — PATCH /users/{user_id}
 # ─────────────────────────────────────────────────────────────
 @router.patch("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
-def update_user(user_id: int, full_name: str | None = None, db: Session = Depends(get_db)):
+def update_user(
+    user_id: int, full_name: str | None = None, db: Session = Depends(get_db)
+):
     """Partially update a user's full name."""
     return user_service.update_user(db, user_id, full_name)
 
